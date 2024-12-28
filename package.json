@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "laravel-vite-plugin": "^1.1.1"
+  }
+}
