@@ -1,129 +1,100 @@
+import { useState } from "react";
 import { Link } from "@remix-run/react";
 
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(""); // Resetea el error en cada intento
+
+    try {
+      const response = await fetch("http://localhost/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        setError(data.message || "Invalid credentials");
+      } else {
+        console.log("Login successful");
+        window.location.href = "/dashboard";
+      }
+    } catch (err) {
+      console.error("Error:", err);
+      setError("An error occurred while logging in");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
-    <div
-      style={{
-        background: "linear-gradient(45deg, #6a11cb 0%, #2575fc 100%)",
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        color: "white",
-        fontFamily: "'Arial', sans-serif",
-        position: "relative", // Para permitir la posición absoluta dentro del div
-      }}
-    >
-      <div
-        style={{
-          background: "rgba(255, 255, 255, 0.1)", // Fondo semi-translúcido para el formulario
-          padding: "40px 60px",
-          borderRadius: "10px",
-          boxShadow: "0 4px 10px rgba(0, 0, 0, 0.2)",
-          width: "100%",
-          maxWidth: "400px",
-        }}
-      >
-        <div
-          style={{
-            position: "absolute", // Posiciona este elemento de manera absoluta
-            top: "20px", // Alineación desde el borde superior
-            left: "20px", // Alineación desde el borde izquierdo
-            fontSize: "0.9rem", // Tamaño más pequeño
-            color: "white", // Blanco
-            textDecoration: "none",
-            fontWeight: "bold",
-          }}
-        >
-          <Link to="/welcome">&lt; Back to Home</Link>
-        </div>
+    <div className="min-h-screen bg-gradient-to-r from-green-400 via-blue-500 to-blue-700 flex justify-center items-center">
+      <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">Login to Your Account</h1>
 
-        <h1
-          style={{
-            fontSize: "2rem",
-            fontWeight: "bold",
-            textAlign: "center",
-            marginBottom: "30px",
-          }}
-        >
-          Login to Your Account
-        </h1>
+        {error && <div className="text-red-600 mb-4">{error}</div>}
 
-        <form>
-          <div style={{ marginBottom: "20px" }}>
-            <label
-              htmlFor="email"
-              style={{
-                display: "block",
-                marginBottom: "8px",
-                fontWeight: "bold",
-              }}
-            >
-              Email:
-            </label>
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email:</label>
             <input
               type="email"
               id="email"
               name="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-                fontSize: "1rem",
-                backgroundColor: "rgba(255, 255, 255, 0.2)",
-                color: "white",
-              }}
+              className="w-full px-4 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
-          <div style={{ marginBottom: "30px" }}>
-            <label
-              htmlFor="password"
-              style={{
-                display: "block",
-                marginBottom: "8px",
-                fontWeight: "bold",
-              }}
-            >
-              Password:
-            </label>
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password:</label>
             <input
               type="password"
               id="password"
               name="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
-              style={{
-                width: "100%",
-                padding: "10px",
-                borderRadius: "5px",
-                border: "1px solid #ccc",
-                fontSize: "1rem",
-                backgroundColor: "rgba(255, 255, 255, 0.2)",
-                color: "white",
-              }}
+              className="w-full px-4 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button
             type="submit"
-            style={{
-              width: "100%",
-              padding: "12px",
-              background: "linear-gradient(45deg, #ff7e5f, #feb47b)",
-              border: "none",
-              borderRadius: "5px",
-              color: "white",
-              fontSize: "1.1rem",
-              fontWeight: "bold",
-              cursor: "pointer",
-              transition: "background 0.3s",
-            }}
-            onMouseEnter={(e) => e.target.style.background = 'linear-gradient(45deg, #feb47b, #ff7e5f)'}
-            onMouseLeave={(e) => e.target.style.background = 'linear-gradient(45deg, #ff7e5f, #feb47b)'}
+            className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200"
+            disabled={loading}
           >
-            Login
+            {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+
+        <div className="mt-4 text-center">
+          <Link
+            to="/welcome"
+            className="text-blue-600 hover:underline block mb-2"
+          >
+            &lt; Back to Home
+          </Link>
+          
+          <Link
+            to="/register"
+            className="text-blue-600 hover:underline"
+          >
+            Don't have an account? <span className="font-bold">Sign up here</span>
+          </Link>
+        </div>
       </div>
     </div>
   );
