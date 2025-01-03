@@ -5,12 +5,33 @@ export default function Dashboard() {
   const [unreadCount, setUnreadCount] = useState(0);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const userName = "User"; // Replace this with dynamic data from your backend.
+  const [userName, setUserName] = useState("");
 
   useEffect(() => {
-    // Simulate fetching notifications
+    const fetchUserName = async () => {
+      try {
+        const response = await fetch("http://localhost/api/user", {
+          method: "GET",
+          headers: {
+            "Authorization": `Bearer ${localStorage.getItem("token")}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setUserName(data.name);
+        } else {
+          console.error("Error fetching user name");
+        }
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    };
+
+    fetchUserName();
+
     const fetchNotifications = async () => {
-      // Replace with your actual API call
       const response = await fetch("http://localhost/api/notifications");
       if (response.ok) {
         const data = await response.json();
@@ -25,10 +46,26 @@ export default function Dashboard() {
   const toggleDropdown = () => setDropdownOpen((prev) => !prev);
   const toggleMenu = () => setMenuOpen((prev) => !prev);
 
-  const handleLogout = () => {
-    // Simulate logout (replace with your actual logout logic)
-    console.log("User logged out");
-    window.location.href = "/login"; // Redirect to login page
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("http://localhost/api/logout", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${localStorage.getItem("token")}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        localStorage.removeItem("token");
+        console.log("User logged out successfully");
+        window.location.href = "/login";
+      } else {
+        console.error("Error during logout");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   return (
@@ -116,7 +153,10 @@ export default function Dashboard() {
                 onClick={() => setMenuOpen(false)}
               >
                 <ul className="divide-y divide-gray-200 dark:divide-gray-600">
-                  <li className="px-4 py-2 flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
+                  <li
+                    onClick={handleLogout}
+                    className="px-4 py-2 flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       className="h-5 w-5 mr-2"
@@ -161,7 +201,7 @@ export default function Dashboard() {
       <main className="container mx-auto px-4 py-12">
         <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
           <h3 className="text-3xl font-semibold mb-4 text-gray-900 dark:text-gray-100">
-            Welcome, {userName}!
+            Welcome, {userName || "Loading..."}!
           </h3>
           <p className="text-lg text-gray-700 dark:text-gray-300">
             You're logged in! Enjoy exploring your dashboard.

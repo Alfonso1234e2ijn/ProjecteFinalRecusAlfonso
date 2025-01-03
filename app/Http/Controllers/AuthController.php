@@ -52,7 +52,6 @@ class AuthController extends Controller
         $user = User::where('email', $request->email)->first();
         $user->tokens()->delete();
 
-        // Validación del login
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = Auth::user();
             $token = $user->createToken('Api-Token')->plainTextToken;
@@ -60,6 +59,15 @@ class AuthController extends Controller
         } else {
             return $this->responseMessage(false, 'Login UNSUCCESSFUL', null, 401);
         }
+    }
+
+    public function logout(Request $request)
+    {
+        $request->user()->tokens->each(function ($token) {
+            $token->delete();
+        });
+
+        return response()->json(['message' => 'Logged out successfully']);
     }
 
 }
