@@ -1,6 +1,6 @@
 import { Form, useActionData, json } from "@remix-run/react";
 import { ActionFunction } from "@remix-run/node";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
@@ -28,6 +28,13 @@ export const action: ActionFunction = async ({ request }) => {
 
 export default function Register() {
   const actionData = useActionData();
+  const navigate = useNavigate();
+
+  if (actionData?.success) {
+    setTimeout(() => {
+      navigate("/login");
+    }, 2000);
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-r from-green-400 via-blue-500 to-blue-700 flex justify-center items-center">
@@ -57,9 +64,11 @@ export default function Register() {
           <button type="submit" className="w-full py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-200">Register</button>
         </Form>
         {actionData?.error && <p className="mt-4 text-red-600">{actionData.error}</p>}
-        {actionData?.success && <p className="mt-4 text-green-600">Registration successful!</p>}
+        {actionData?.success && <p className="mt-4 text-green-600">Registration successful! Redirecting to login...</p>}
         <div className="mt-6 text-center">
-          <Link to="/welcome" className="text-blue-500 hover:text-blue-700">Go back to Welcome</Link>
+          <p className="text-sm text-gray-600">
+            If you don't get redirected, <a href="/login" className="text-blue-500 hover:text-blue-700">click here</a> to go to Login.
+          </p>
         </div>
       </div>
     </div>

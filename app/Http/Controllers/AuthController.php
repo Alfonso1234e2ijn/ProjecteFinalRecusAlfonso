@@ -20,7 +20,6 @@ class AuthController extends Controller
             return $this->responseMessage(false, 'User is logged in', null, 409);
         }
 
-        // Validación de datos
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'email' => 'required|email',
@@ -32,24 +31,35 @@ class AuthController extends Controller
             return $this->responseMessage(false, $validator->errors(), null, 422);
         }
 
-        // Creación del nuevo usuario con role = 0 por defecto
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
-            'role' => 0, // Rol por defecto
+            'role' => 0,
             'username' => $request->username
         ]);
 
         Auth::login($user);
 
-        // Creación del token para autenticación
         $token = $user->createToken($user->email . '_token')->plainTextToken;
 
-        return $this->responseMessage(true, 'Nuevo usuario registrado', 
+        return $this->responseMessage(true, 'Registration succesfully', 
             ['user' => $user, 'token' => $token], 200);
     }
 
+    public function login(Request $request)
+    {
+        $user = User::where('email', $request->email)->first();
+        $user->tokens()->delete();
 
+        // Validación del login
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = Auth::user();
+            $token = $user->createToken('Api-Token')->plainTextToken;
+            return $this->responseMessage(true, 'Login SUCCESSFUL', ['token' => $token], 200);
+        } else {
+            return $this->responseMessage(false, 'Login UNSUCCESSFUL', null, 401);
+        }
+    }
 
 }
