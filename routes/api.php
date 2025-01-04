@@ -6,9 +6,11 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ThreadController;
 
+Route::middleware(['auth:sanctum'])->delete('/threads/{id}', [ThreadController::class, 'deleteThread']);
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('/threads', [ThreadController::class, 'createThread']);
+    Route::get('/my-threads', [ThreadController::class, 'getMyThreads']);
 });
 
 Route::middleware(['auth:sanctum'])->group(function () {

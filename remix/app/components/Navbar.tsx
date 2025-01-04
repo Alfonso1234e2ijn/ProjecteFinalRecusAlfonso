@@ -19,7 +19,7 @@ export default function Navbar() {
           alt="Logo"
           style={{ height: "40px", marginRight: "10px" }}
         />
-        <span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>YourSite</span>
+        <span style={{ fontSize: "1.5rem", fontWeight: "bold" }}>Discutex</span>
       </div>
 
       <div style={{ display: "flex", alignItems: "center" }}>
