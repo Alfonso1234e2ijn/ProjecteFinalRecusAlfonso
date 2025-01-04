@@ -1,12 +1,15 @@
-import { Link } from "@remix-run/react";
+import { Link, useNavigate } from "@remix-run/react";
 import { useState } from "react";
 
 export default function CreateThread() {
     const [title, setTitle] = useState("");
     const [content, setContent] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSubmitting(true);
 
         const response = await fetch("http://localhost/api/threads", {
             method: "POST",
@@ -17,15 +20,20 @@ export default function CreateThread() {
             },
         });
 
+        setIsSubmitting(false);
+
         if (response.ok) {
             alert("Thread created successfully!");
+            navigate("/my-threads");
         } else {
+            alert("Failed to create thread");
             console.error("Failed to create thread");
         }
     };
 
     return (
         <div className="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-gray-900 dark:text-gray-100">
+            {/* Encabezado de la página */}
             <header className="bg-white dark:bg-gray-800 shadow">
                 <div className="container mx-auto px-4 py-6 flex justify-between items-center">
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
@@ -95,9 +103,10 @@ export default function CreateThread() {
 
                         <button
                             type="submit"
-                            className="bg-blue-500 text-white py-2 px-4 rounded-md"
+                            className={`bg-blue-500 text-white py-2 px-4 rounded-md ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+                            disabled={isSubmitting}
                         >
-                            Create Thread
+                            {isSubmitting ? 'Creating...' : 'Create Thread'}
                         </button>
                     </form>
                 </div>

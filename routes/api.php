@@ -4,6 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\ThreadController;
+
+
+Route::middleware(['auth:sanctum'])->group(function () {
+    Route::post('/threads', [ThreadController::class, 'createThread']);
+});
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [UserController::class, 'getUserDetails']);

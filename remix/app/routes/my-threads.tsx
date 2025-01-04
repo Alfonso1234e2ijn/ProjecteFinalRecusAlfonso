@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom"; // Asegúrate de que está configurado correctamente
+import { Link } from "react-router-dom";
 
 export default function MyThreads() {
     const [threads, setThreads] = useState([]);
