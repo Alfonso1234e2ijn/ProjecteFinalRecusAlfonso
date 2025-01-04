@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-    const navigate = useNavigate(); // Añadimos useNavigate
+    const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -143,7 +143,7 @@ export default function Dashboard() {
 
                 if (response.ok) {
                     localStorage.removeItem("token");
-                    navigate("/welcome"); // Redirige a la página de bienvenida después de eliminar la cuenta
+                    navigate("/welcome");
                     alert("Your account has been deleted.");
                 } else {
                     console.error("Error deleting account");
