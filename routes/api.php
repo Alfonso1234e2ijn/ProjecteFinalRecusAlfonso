@@ -5,6 +5,23 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ThreadController;
+use App\Http\Controllers\ResponseController;
+
+Route::middleware('auth:sanctum')->get('/responses/{response_id}/user', [ResponseController::class, 'getUserByResponse']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/responses/{thread_id}', [ResponseController::class, 'handleResponses']);
+    Route::post('/responses', [ResponseController::class, 'handleResponses']);
+    
+    
+    Route::get('/profile', [AuthController::class, 'profile']);
+
+});
+
+Route::get('/responses/{thread_id}', [ResponseController::class, 'getResponsesByThread']);
+
+
+Route::middleware(['auth:sanctum'])->get('/threads', [ThreadController::class, 'getAllThreads']);
 
 Route::middleware(['auth:sanctum'])->delete('/threads/{id}', [ThreadController::class, 'deleteThread']);
 

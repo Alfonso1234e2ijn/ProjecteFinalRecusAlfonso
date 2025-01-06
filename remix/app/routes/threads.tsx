@@ -1,24 +1,46 @@
+import { Link } from "@remix-run/react";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom"; // Usamos Link para las rutas de Remix
 
 export default function Threads() {
-  const [threads, setThreads] = useState([]);
-  const [filteredThreads, setFilteredThreads] = useState([]);
+  const [threads, setThreads] = useState([]); // Original list of threads
+  const [filteredThreads, setFilteredThreads] = useState([]); // Filtered list of threads
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const fetchThreads = async () => {
+      setLoading(true);
+      setError(null);
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        setError("No token found. Please log in.");
+        setLoading(false);
+        return;
+      }
+
       try {
-        const response = await fetch("/api/threads");
+        const response = await fetch("http://localhost/api/threads", {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
         if (response.ok) {
           const data = await response.json();
-          setThreads(data.threads);
-          setFilteredThreads(data.threads);
+          setThreads(data.threads); // Save the full list of threads
+          setFilteredThreads(data.threads); // Initialize the filtered list
         } else {
-          console.error("Failed to fetch threads");
+          const errorData = await response.json();
+          setError(errorData.message || "Failed to fetch threads");
         }
       } catch (error) {
+        setError("Error fetching threads");
         console.error("Error fetching threads:", error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -28,9 +50,12 @@ export default function Threads() {
   const handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
+
+    // Filter the original list of threads
     const filtered = threads.filter((thread) =>
       thread.title.toLowerCase().includes(query)
     );
+
     setFilteredThreads(filtered);
   };
 
@@ -63,35 +88,47 @@ export default function Threads() {
 
         {/* Title */}
         <h1 className="text-3xl font-extrabold text-center text-gray-700 mb-6">
-          Search a Discussion
+          Discussions
         </h1>
         <p className="text-gray-500 text-center mb-8">
-          Find and select the discussion group.
+          Explore and select a discussion group.
         </p>
 
-        {/* Search Bar */}
+        {/* Search bar */}
         <div className="mb-6">
           <input
             type="text"
             id="searchInput"
             placeholder="Search discussions..."
             value={searchQuery}
-            onChange={handleSearch}
+            onChange={handleSearch} // Filter as the user types
             className="w-full border border-gray-300 rounded-lg py-2 px-4 focus:outline-none focus:ring-2 focus:ring-green-500"
           />
         </div>
 
-        {/* Threads */}
+        {/* List of threads */}
         <div id="threadsContainer" className="space-y-5">
-          {filteredThreads.map((thread) => (
-            <Link
-              key={thread.id}
-              to={`/group`}
-              className="thread-item flex items-center justify-center bg-blue-200 text-blue-800 text-lg font-medium py-4 rounded-lg shadow-md hover:bg-blue-300 transition-transform transform hover:scale-105"
-            >
-              {thread.title}
-            </Link>
-          ))}
+          {loading ? (
+            <p className="text-center text-gray-500">Loading...</p>
+          ) : error ? (
+            <p className="text-center text-red-500">{error}</p>
+          ) : filteredThreads.length > 0 ? (
+            filteredThreads.map((thread) => (
+              <Link
+                key={thread.id}
+                to="/group"
+                state={{ threadTitle: thread.title, threadId: thread.id }}
+                className="thread-item flex items-center justify-center bg-blue-200 text-blue-800 text-lg font-medium py-4 rounded-lg shadow-md hover:bg-blue-300 transition-transform transform hover:scale-105"
+              >
+                <div>
+                  <h3 className="text-xl font-bold">{thread.title}</h3>
+                  <p className="text-sm text-gray-600">{thread.content}</p>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <p className="text-center text-gray-500">No discussions found</p>
+          )}
         </div>
       </div>
     </div>

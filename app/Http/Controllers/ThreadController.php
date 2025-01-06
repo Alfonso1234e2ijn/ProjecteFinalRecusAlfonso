@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ThreadController extends Controller
 {
+
     /**
      * Crea un nuevo hilo.
      *
@@ -72,5 +73,14 @@ class ThreadController extends Controller
         $thread->delete();
 
         return response()->json(['message' => 'Thread deleted successfully.'], 200);
+    }
+
+    public function getAllThreads(Request $request)
+    {
+        $threads = Thread::all();
+
+        return response()->json([
+            'threads' => $threads,
+        ], 200);
     }
 }
