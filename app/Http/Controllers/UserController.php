@@ -61,13 +61,10 @@ class UserController extends Controller
     public function deleteUserAccount()
     {
         $user = Auth::user();
-
         if (!$user) {
             return response()->json(['message' => 'User not authenticated'], 401);
         }
-
         $user->delete();
-
         return response()->json(['message' => 'Your account has been deleted.'], 200);
     }
 

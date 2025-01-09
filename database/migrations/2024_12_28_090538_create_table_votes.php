@@ -16,10 +16,9 @@ return new class extends Migration
             $table->boolean('type'); // like or dislike
             $table->unsignedBigInteger('user_id');
             $table->unsignedBigInteger('response_id');
-            $table->boolean('read')->default(false); // Nueva columna 'read'
+            $table->boolean('read')->default(false);
             $table->timestamps();
 
-            // Relaciones
             $table->foreign('user_id')->references('id')->on('users');
             $table->foreign('response_id')->references('id')->on('responses');
         });

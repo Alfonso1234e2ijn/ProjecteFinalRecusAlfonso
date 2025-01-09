@@ -6,6 +6,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\ResponseController;
+use App\Http\Controllers\VoteController;
+
+Route::middleware('auth:sanctum')->post('/responses/{responseId}/vote', [VoteController::class, 'vote']);
 
 Route::middleware('auth:sanctum')->get('/responses/{response_id}/user', [ResponseController::class, 'getUserByResponse']);
 

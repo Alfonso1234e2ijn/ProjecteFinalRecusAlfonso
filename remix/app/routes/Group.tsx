@@ -23,7 +23,9 @@ const Group = () => {
                 const response = await fetch(`http://localhost/api/profile`, {
                     method: "GET",
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
                     },
                 });
 
@@ -51,7 +53,9 @@ const Group = () => {
                 `http://localhost/api/responses/${threadId}`,
                 {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
                     },
                 }
             );
@@ -85,7 +89,9 @@ const Group = () => {
                                 `http://localhost/api/responses/${response.id}/user`,
                                 {
                                     headers: {
-                                        Authorization: `Bearer ${localStorage.getItem("token")}`,
+                                        Authorization: `Bearer ${localStorage.getItem(
+                                            "token"
+                                        )}`,
                                     },
                                 }
                             );
@@ -142,6 +148,47 @@ const Group = () => {
         }
     };
 
+    // Handle Like and Dislike for responses
+    const handleLikeDislike = async (
+        responseId: number,
+        action: boolean,
+        response: any
+    ) => {
+        // Avoid vote for own responses
+        if (response.user_id === user?.id) {
+            alert("You cannot vote on your own response.");
+            return;
+        }
+
+        try {
+            const voteResponse = await fetch(
+                `http://localhost/api/responses/${responseId}/vote`,
+                {
+                    method: "POST",
+                    body: JSON.stringify({ action }),
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
+                    },
+                }
+            );
+
+            if (voteResponse.ok) {
+                // If the vote got succefully the app says:
+                alert("Vote registered successfully!");
+                fetchMessages();// reload the resposnes
+            } else {
+                const errorData = await voteResponse.json();
+                alert(`Error voting: ${errorData.error || "Unknown error"}`);
+            }
+        } catch (error) {
+            alert("An error occurred while voting.");
+            console.error("Error:", error);
+        }
+    };
+
     return (
         <div className="bg-gradient-to-r from-purple-400 via-indigo-500 to-blue-600 flex items-center justify-center min-h-screen">
             <div className="bg-white w-full max-w-md h-full max-h-screen flex flex-col shadow-lg rounded-lg">
@@ -167,7 +214,6 @@ const Group = () => {
                         Back to Threads
                     </button>
                 </div>
-
                 <div className="bg-blue-500 text-white py-4 px-6 rounded-t-lg text-center font-bold text-lg">
                     Discussion Chat: {threadTitle || "Loading..."}
                 </div>
@@ -199,8 +245,36 @@ const Group = () => {
                                 >
                                     <p>{response.content}</p>
                                     <small className="text-xs">
-                                        {response.user?.username || "Unknown User"}
+                                        {response.user?.username ||
+                                            "Unknown User"}
                                     </small>
+
+                                    {response.user_id !== user?.id && (
+                                        <div className="mt-2 flex space-x-4">
+                                            <button
+                                                onClick={() =>
+                                                    handleLikeDislike(
+                                                        response.id,
+                                                        true,
+                                                        response
+                                                    )
+                                                }
+                                            >
+                                                Like
+                                            </button>
+                                            <button
+                                                onClick={() =>
+                                                    handleLikeDislike(
+                                                        response.id,
+                                                        false,
+                                                        response
+                                                    )
+                                                } // Pass `response`
+                                            >
+                                                Dislike
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))

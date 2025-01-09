@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 
 export default function Dashboard() {
     const navigate = useNavigate();
@@ -133,13 +134,18 @@ export default function Dashboard() {
     const handleDeleteAccount = async () => {
         if (window.confirm("Are you sure you want to delete your account?")) {
             try {
-                const response = await fetch("http://localhost/api/user/delete", {
-                    method: "DELETE",
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem("token")}`,
-                        "Content-Type": "application/json",
-                    },
-                });
+                const response = await fetch(
+                    "http://localhost/api/user/delete",
+                    {
+                        method: "DELETE",
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem(
+                                "token"
+                            )}`,
+                            "Content-Type": "application/json",
+                        },
+                    }
+                );
 
                 if (response.ok) {
                     localStorage.removeItem("token");
@@ -150,7 +156,9 @@ export default function Dashboard() {
                 }
             } catch (error) {
                 console.error("Error:", error);
-                alert("An unexpected error occurred while deleting your account.");
+                alert(
+                    "An unexpected error occurred while deleting your account."
+                );
             }
         }
     };
@@ -296,7 +304,10 @@ export default function Dashboard() {
                                         Delete Account
                                     </li>
                                     <li className="px-4 py-2 flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
-                                        <Link to="/my-threads" className="flex items-center">
+                                        <Link
+                                            to="/my-threads"
+                                            className="flex items-center"
+                                        >
                                             <svg
                                                 xmlns="http://www.w3.org/2000/svg"
                                                 className="h-5 w-5 mr-2"
