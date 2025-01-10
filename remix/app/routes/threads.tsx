@@ -61,31 +61,31 @@ export default function Threads() {
 
   return (
     <div className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 flex items-center justify-center min-h-screen">
-      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md">
-        {/* Back to Dashboard */}
-        <div className="mb-4">
-          <Link
-            to="/dashboard"
-            className="flex items-center text-gray-600 hover:text-gray-800 text-sm font-medium"
+      {/* Back to Dashboard Button */}
+      <div className="absolute top-4 left-4">
+        <Link
+          to="/dashboard"
+          className="flex items-center text-white font-medium text-lg bg-gradient-to-r from-indigo-400 via-blue-500 to-purple-600 hover:from-purple-600 hover:to-blue-500 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+            stroke="currentColor"
+            className="w-6 h-6 mr-3"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-              stroke="currentColor"
-              className="w-5 h-5 mr-2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back to Dashboard
-          </Link>
-        </div>
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to Dashboard
+        </Link>
+      </div>
 
+      <div className="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md relative">
         {/* Title */}
         <h1 className="text-3xl font-extrabold text-center text-gray-700 mb-6">
           Discussions

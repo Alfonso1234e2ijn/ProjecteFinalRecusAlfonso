@@ -1,10 +1,11 @@
+import axios from "axios";
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 export default function Dashboard() {
     const navigate = useNavigate();
     const [notifications, setNotifications] = useState([]);
+    const [unreadVotes, setUnreadVotes] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
@@ -12,6 +13,9 @@ export default function Dashboard() {
     const [userEmail, setUserEmail] = useState("");
     const [userUsername, setUserUsername] = useState("");
     const [editing, setEditing] = useState(false);
+    const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+    const [isNotificationCircleVisible, setIsNotificationCircleVisible] =
+        useState(true);
     const [originalUser, setOriginalUser] = useState({
         name: "",
         email: "",
@@ -61,7 +65,39 @@ export default function Dashboard() {
         };
 
         fetchNotifications();
+
+        // Fetch unread votes
+        const fetchUnreadVotes = async () => {
+            try {
+                const response = await axios.get(
+                    "http://localhost/api/unread-votes",
+                    {
+                        headers: {
+                            Authorization: `Bearer ${localStorage.getItem(
+                                "token"
+                            )}`,
+                        },
+                    }
+                );
+                if (response.data) {
+                    setUnreadVotes(response.data.unreadVotes);
+                }
+            } catch (error) {
+                console.error("Error fetching unread votes:", error);
+            }
+        };
+
+        fetchUnreadVotes();
     }, []);
+
+    const toggleNotifications = () => {
+        setIsNotificationsOpen((prev) => !prev);
+        setIsNotificationCircleVisible(false);
+    };
+
+    const clearVotes = () => {
+        setUnreadVotes([]);
+    };
 
     const toggleDropdown = () => setDropdownOpen((prev) => !prev);
     const toggleMenu = () => setMenuOpen((prev) => !prev);
@@ -170,53 +206,27 @@ export default function Dashboard() {
                     <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                         Dashboard
                     </h2>
-                    <div className="relative">
-                        <button
-                            onClick={toggleDropdown}
-                            className="relative focus:outline-none text-gray-800 dark:text-gray-200"
+                    <button onClick={toggleNotifications} className="relative">
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6 text-gray-800 dark:text-gray-200"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
                         >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                className="h-6 w-6"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    strokeWidth="2"
-                                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14V10a6 6 0 10-12 0v4c0 .387-.158.735-.405 1.005L4 17h5m6 0a3 3 0 11-6 0h6z"
-                                />
-                            </svg>
-                            {unreadCount > 0 && (
-                                <span className="absolute top-0 right-0 w-4 h-4 bg-red-600 text-white text-xs rounded-full flex justify-center items-center">
-                                    {unreadCount}
-                                </span>
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth="2"
+                                d="M18 8a6 6 0 00-12 0v4a6 6 0 00-4 5.197V18h20v-1.803A6 6 0 0018 12V8z"
+                            />
+                        </svg>
+                        {/* Only if isNotificationCircleVisible is true the circle goes color red */}
+                        {isNotificationCircleVisible &&
+                            unreadVotes.length > 0 && (
+                                <span className="absolute top-0 right-0 inline-block h-2.5 w-2.5 bg-red-600 rounded-full"></span>
                             )}
-                        </button>
-                        {dropdownOpen && (
-                            <div
-                                className="absolute right-0 mt-2 w-72 bg-white dark:bg-gray-700 rounded-lg shadow-lg overflow-hidden"
-                                onClick={() => setDropdownOpen(false)}
-                            >
-                                <ul className="divide-y divide-gray-200 dark:divide-gray-600">
-                                    {notifications.length > 0 ? (
-                                        notifications.map((notif, idx) => (
-                                            <li key={idx} className="px-4 py-2">
-                                                {notif.message}
-                                            </li>
-                                        ))
-                                    ) : (
-                                        <li className="px-4 py-2 text-gray-600 dark:text-gray-400">
-                                            No new notifications
-                                        </li>
-                                    )}
-                                </ul>
-                            </div>
-                        )}
-                    </div>
-
+                    </button>
                     <div className="relative">
                         <button
                             onClick={toggleMenu}
@@ -417,8 +427,36 @@ export default function Dashboard() {
                                 You're logged in! Enjoy exploring your
                                 dashboard.
                             </p>
+                            {isNotificationsOpen && (
+                                <div className="mt-6 bg-gray-100 p-4 rounded-md">
+                                    <h4 className="text-md font-semibold text-gray-900 dark:text-gray-100 cursor-pointer">
+                                        You have reacted to
+                                    </h4>
+                                    <ul className="mt-4">
+                                        {unreadVotes.length > 0 ? (
+                                            unreadVotes.map((vote) => (
+                                                <li
+                                                    key={vote.id}
+                                                    className="bg-gray-200 p-4 rounded-md mb-2"
+                                                >
+                                                    {vote.type === 1
+                                                        ? `You liked the message: "${vote.response.content}"`
+                                                        : `You disliked the message: "${vote.response.content}"`}
+                                                </li>
+                                            ))
+                                        ) : (
+                                            <p>No unread votes.</p>
+                                        )}
+                                    </ul>
+                                    <button
+                                        onClick={clearVotes}
+                                        className="mt-4 py-2 px-4 bg-red-600 text-white rounded-md"
+                                    >
+                                        Clear Votes
+                                    </button>
+                                </div>
+                            )}
 
-                            {/* Button below the Welcome text */}
                             <Link to="/threads">
                                 <button className="mt-6 bg-blue-500 text-white py-2 px-4 rounded-md">
                                     Go to Threads

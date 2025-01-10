@@ -44,4 +44,16 @@ class VoteController extends Controller
 
         return response()->json(['message' => 'Vote registered successfully.']);
     }
+
+    public function getUnreadVotes(Request $request)
+    {
+        $userId = auth()->user()->id;
+        $unreadVotes = Vote::where('user_id', $userId)
+            ->where('read', 0)
+            ->with('response')
+            ->get();
+
+        return response()->json(['unreadVotes' => $unreadVotes]);
+    }
+
 }

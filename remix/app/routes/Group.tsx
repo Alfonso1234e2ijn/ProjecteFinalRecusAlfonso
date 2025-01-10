@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "@remix-run/react";
+import { FaThumbsDown, FaThumbsUp } from "react-icons/fa";
 
 const Group = () => {
     const location = useLocation();
@@ -176,9 +177,9 @@ const Group = () => {
             );
 
             if (voteResponse.ok) {
-                // If the vote got succefully the app says:
+                // If the vote got successfully, the app says:
                 alert("Vote registered successfully!");
-                fetchMessages();// reload the resposnes
+                fetchMessages(); // reload the responses
             } else {
                 const errorData = await voteResponse.json();
                 alert(`Error voting: ${errorData.error || "Unknown error"}`);
@@ -191,29 +192,31 @@ const Group = () => {
 
     return (
         <div className="bg-gradient-to-r from-purple-400 via-indigo-500 to-blue-600 flex items-center justify-center min-h-screen">
-            <div className="bg-white w-full max-w-md h-full max-h-screen flex flex-col shadow-lg rounded-lg">
-                <div className="mb-4">
-                    <button
-                        onClick={() => navigate("/threads")}
-                        className="flex items-center text-gray-600 hover:text-gray-800 text-sm font-medium"
+            {/* Back to Threads Button */}
+            <div className="absolute top-4 left-4">
+                <button
+                    onClick={() => navigate("/threads")}
+                    className="flex items-center text-white font-medium text-lg bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 hover:from-purple-600 hover:to-blue-500 px-6 py-3 rounded-lg shadow-lg transform transition-all duration-300 hover:scale-105 focus:outline-none"
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        strokeWidth="2"
+                        stroke="currentColor"
+                        className="w-6 h-6 mr-3"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth="2"
-                            stroke="currentColor"
-                            className="w-5 h-5 mr-2"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                d="M15 19l-7-7 7-7"
-                            />
-                        </svg>
-                        Back to Threads
-                    </button>
-                </div>
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M15 19l-7-7 7-7"
+                        />
+                    </svg>
+                    Back to Threads
+                </button>
+            </div>
+
+            <div className="bg-white w-full max-w-md h-full max-h-screen flex flex-col shadow-lg rounded-lg">
                 <div className="bg-blue-500 text-white py-4 px-6 rounded-t-lg text-center font-bold text-lg">
                     Discussion Chat: {threadTitle || "Loading..."}
                 </div>
@@ -259,8 +262,9 @@ const Group = () => {
                                                         response
                                                     )
                                                 }
+                                                className="text-blue-500 hover:text-blue-700 transform transition-all duration-200 hover:scale-110"
                                             >
-                                                Like
+                                                <FaThumbsUp size={20} />
                                             </button>
                                             <button
                                                 onClick={() =>
@@ -269,9 +273,10 @@ const Group = () => {
                                                         false,
                                                         response
                                                     )
-                                                } // Pass `response`
+                                                }
+                                                className="text-red-500 hover:text-red-700 transform transition-all duration-200 hover:scale-110"
                                             >
-                                                Dislike
+                                                <FaThumbsDown size={20} />
                                             </button>
                                         </div>
                                     )}
