@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "@remix-run/react";
-import { FaThumbsDown, FaThumbsUp } from "react-icons/fa";
+import { FaThumbsDown, FaThumbsUp, FaUpload } from "react-icons/fa"; // Iconos
 
 const Group = () => {
     const location = useLocation();
@@ -17,6 +17,28 @@ const Group = () => {
     const responseListRef = useRef<HTMLDivElement | null>(null);
     const [user, setUser] = useState<any>(null);
 
+    const [background, setBackground] = useState<string>(""); 
+    const [imageUrl, setImageUrl] = useState<string>("");
+
+    // Verify if the code are executing in client browser before use localStorage
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            // This only executed when the user is a client
+            const savedBackground = localStorage.getItem("background");
+            const savedImageUrl = localStorage.getItem("imageUrl");
+
+            if (savedBackground) {
+                setBackground(savedBackground);
+            } else {
+                setBackground("linear-gradient(to right, #34d399, #3b82f6)"); // default background
+            }
+
+            if (savedImageUrl) {
+                setImageUrl(savedImageUrl);
+            }
+        }
+    }, []); 
+
     // Fetch the authenticated user
     useEffect(() => {
         const fetchUser = async () => {
@@ -24,9 +46,7 @@ const Group = () => {
                 const response = await fetch(`http://localhost/api/profile`, {
                     method: "GET",
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem(
-                            "token"
-                        )}`,
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 });
 
@@ -50,16 +70,11 @@ const Group = () => {
         setLoading(true);
         setError(null);
         try {
-            const response = await fetch(
-                `http://localhost/api/responses/${threadId}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem(
-                            "token"
-                        )}`,
-                    },
-                }
-            );
+            const response = await fetch(`http://localhost/api/responses/${threadId}`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
+                },
+            });
             if (response.ok) {
                 const data = await response.json();
                 setResponses(data.responses);
@@ -90,9 +105,7 @@ const Group = () => {
                                 `http://localhost/api/responses/${response.id}/user`,
                                 {
                                     headers: {
-                                        Authorization: `Bearer ${localStorage.getItem(
-                                            "token"
-                                        )}`,
+                                        Authorization: `Bearer ${localStorage.getItem("token")}`,
                                     },
                                 }
                             );
@@ -150,12 +163,7 @@ const Group = () => {
     };
 
     // Handle Like and Dislike for responses
-    const handleLikeDislike = async (
-        responseId: number,
-        action: boolean,
-        response: any
-    ) => {
-        // Avoid vote for own responses
+    const handleLikeDislike = async (responseId: number, action: boolean, response: any) => {
         if (response.user_id === user?.id) {
             alert("You cannot vote on your own response.");
             return;
@@ -169,17 +177,14 @@ const Group = () => {
                     body: JSON.stringify({ action }),
                     headers: {
                         "Content-Type": "application/json",
-                        Authorization: `Bearer ${localStorage.getItem(
-                            "token"
-                        )}`,
+                        Authorization: `Bearer ${localStorage.getItem("token")}`,
                     },
                 }
             );
 
             if (voteResponse.ok) {
-                // If the vote got successfully, the app says:
                 alert("Vote registered successfully!");
-                fetchMessages(); // reload the responses
+                fetchMessages();
             } else {
                 const errorData = await voteResponse.json();
                 alert(`Error voting: ${errorData.error || "Unknown error"}`);
@@ -190,8 +195,44 @@ const Group = () => {
         }
     };
 
+    // Handle Image Upload
+    const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const imageUrl = reader.result as string;
+                setImageUrl(imageUrl);
+                setBackground(`url(${imageUrl})`);
+                // Save the url of the image and the background inside the localStorage
+                if (typeof window !== "undefined") {
+                    localStorage.setItem("imageUrl", imageUrl);
+                    localStorage.setItem("background", `url(${imageUrl})`);
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     return (
-        <div className="bg-gradient-to-r from-purple-400 via-indigo-500 to-blue-600 flex items-center justify-center min-h-screen">
+        <div
+            className="flex items-center justify-center min-h-screen"
+            style={{ backgroundImage: background, backgroundSize: "cover", backgroundPosition: "center" }}
+        >
+            {/* Image Upload Option */}
+            <div className="absolute top-4 right-4">
+                <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                    id="file-input"
+                />
+                <label htmlFor="file-input" className="p-2 bg-transparent text-white rounded-full cursor-pointer">
+                    <FaUpload size={24} />
+                </label>
+            </div>
+
             {/* Back to Threads Button */}
             <div className="absolute top-4 left-4">
                 <button
@@ -216,15 +257,13 @@ const Group = () => {
                 </button>
             </div>
 
+            {/* Chat Content */}
             <div className="bg-white w-full max-w-md h-full max-h-screen flex flex-col shadow-lg rounded-lg">
                 <div className="bg-blue-500 text-white py-4 px-6 rounded-t-lg text-center font-bold text-lg">
                     Discussion Chat: {threadTitle || "Loading..."}
                 </div>
 
-                <div
-                    ref={responseListRef}
-                    className="flex-1 overflow-y-auto p-4 space-y-4"
-                >
+                <div ref={responseListRef} className="flex-1 overflow-y-auto p-4 space-y-4">
                     {loading ? (
                         <p>Loading...</p>
                     ) : error ? (
@@ -248,19 +287,14 @@ const Group = () => {
                                 >
                                     <p>{response.content}</p>
                                     <small className="text-xs">
-                                        {response.user?.username ||
-                                            "Unknown User"}
+                                        {response.user?.username || "Unknown User"}
                                     </small>
 
                                     {response.user_id !== user?.id && (
                                         <div className="mt-2 flex space-x-4">
                                             <button
                                                 onClick={() =>
-                                                    handleLikeDislike(
-                                                        response.id,
-                                                        true,
-                                                        response
-                                                    )
+                                                    handleLikeDislike(response.id, true, response)
                                                 }
                                                 className="text-blue-500 hover:text-blue-700 transform transition-all duration-200 hover:scale-110"
                                             >
@@ -268,11 +302,7 @@ const Group = () => {
                                             </button>
                                             <button
                                                 onClick={() =>
-                                                    handleLikeDislike(
-                                                        response.id,
-                                                        false,
-                                                        response
-                                                    )
+                                                    handleLikeDislike(response.id, false, response)
                                                 }
                                                 className="text-red-500 hover:text-red-700 transform transition-all duration-200 hover:scale-110"
                                             >
