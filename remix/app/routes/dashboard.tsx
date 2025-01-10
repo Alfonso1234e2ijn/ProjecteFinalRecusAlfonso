@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { FaUserPlus } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
@@ -460,6 +461,12 @@ export default function Dashboard() {
                             <Link to="/threads">
                                 <button className="mt-6 bg-blue-500 text-white py-2 px-4 rounded-md">
                                     Go to Threads
+                                </button>
+                            </Link>
+                            <Link to="/userRatings">
+                                <button className="mt-6 bg-green-500 text-white py-2 px-4 rounded-md flex items-center space-x-2">
+                                    <FaUserPlus size={20} />
+                                    <span>Go to User Ratings</span>
                                 </button>
                             </Link>
                         </>

@@ -8,6 +8,10 @@ use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\ResponseController;
 use App\Http\Controllers\VoteController;
 
+Route::post('/uratings/rate', [UserController::class, 'rateUser']);
+
+Route::get('/users/getAll', [UserController::class, 'getAllUsers']);
+
 Route::middleware('auth:sanctum')->get('/unread-votes', [VoteController::class, 'getUnreadVotes']);
 
 Route::middleware('auth:sanctum')->post('/responses/{responseId}/vote', [VoteController::class, 'vote']);

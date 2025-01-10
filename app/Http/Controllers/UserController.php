@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
+use App\Models\Urating;
 
 class UserController extends Controller
 {
@@ -105,5 +106,41 @@ class UserController extends Controller
             'notifications' => $notifications,
             'unreadCount' => $unreadCount,
         ], 200);
+    }
+    public function getAllUsers(Request $request)
+    {
+        $users = User::all();
+
+        return response()->json([
+            'users' => $users,
+        ], 200);
+    }
+
+    public function rateUser(Request $request)
+    {
+        $validated = $request->validate([
+            'user_id' => 'required|exists:users,id',
+            'rating' => 'required|integer|min:1|max:5',
+        ]);
+
+        $userId = $validated['user_id'];
+        $raterId = auth()->id();
+        $rating = $validated['rating'];
+
+        $existingRating = Urating::where('user_id', $userId)->where('rater_id', $raterId)->first();
+
+        if ($existingRating) {
+            $existingRating->rating = $rating;
+            $existingRating->save();
+        } else {
+            Urating::create([
+                'user_id' => $userId,
+                'rater_id' => $raterId,
+                'rating' => $rating,
+            ]);
+        }
+
+        return response()->json(['rating' => $rating], 200);
+
     }
 }
