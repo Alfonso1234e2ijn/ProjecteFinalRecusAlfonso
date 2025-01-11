@@ -25,6 +25,8 @@ class UserFactory extends Factory
         ];
     }
 
+    
+
     /**
      * Crear un usuario con rol de admin (role = 1).
      *
@@ -34,7 +36,7 @@ class UserFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'role' => 1, // Rol de admin: '1'
+                'role' => 1,
             ];
         });
     }

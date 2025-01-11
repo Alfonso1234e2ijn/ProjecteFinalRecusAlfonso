@@ -12,6 +12,7 @@ export default function Dashboard() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [userName, setUserName] = useState("");
     const [userEmail, setUserEmail] = useState("");
+    const [userRole, setUserRole] = useState(null);
     const [userUsername, setUserUsername] = useState("");
     const [editing, setEditing] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
@@ -40,6 +41,7 @@ export default function Dashboard() {
                     const data = await response.json();
                     setUserName(data.name);
                     setUserEmail(data.email);
+                    setUserRole(data.role); 
                     setUserUsername(data.username);
                     setOriginalUser({
                         name: data.name,
@@ -254,6 +256,14 @@ export default function Dashboard() {
                                 onClick={() => setMenuOpen(false)}
                             >
                                 <ul className="divide-y divide-gray-200 dark:divide-gray-600">
+                                    {/* Admin-only option */}
+                                    {userRole === 1 && (
+                                        <li className="px-4 py-2 flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
+                                            <Link to="/admin-panel">
+                                                Admin Panel
+                                            </Link>
+                                        </li>
+                                    )}
                                     <li
                                         onClick={handleLogout}
                                         className="px-4 py-2 flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"

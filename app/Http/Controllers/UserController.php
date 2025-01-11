@@ -137,4 +137,33 @@ class UserController extends Controller
         return response()->json(['rating' => $rating], 201);
     }
 
+    public function updateRole(Request $request)
+    {
+        $user = Auth::user();
+
+        if (!$user) {
+            return response()->json(['message' => 'User not authenticated'], 401);
+        }
+
+        // Obtain the user id
+        $targetUser = User::find($request->user_id);
+
+        if (!$targetUser) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $newRole = $targetUser->role === 0 ? 1 : 0;
+        $targetUser->role = $newRole;
+
+        // Save changes
+        $targetUser->save();
+
+        // Return a message with the new role
+        return response()->json([
+            'success' => true,
+            'message' => 'Role has been changed',
+            'role' => $targetUser->role
+        ], 200);
+    }
+
 }
