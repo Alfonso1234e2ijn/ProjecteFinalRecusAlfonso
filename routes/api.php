@@ -8,7 +8,10 @@ use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\ResponseController;
 use App\Http\Controllers\VoteController;
 
-Route::post('/uratings/rate', [UserController::class, 'rateUser']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/uratings/rate', [UserController::class, 'rate']);
+});
+
 
 Route::get('/users/getAll', [UserController::class, 'getAllUsers']);
 
@@ -21,7 +24,6 @@ Route::middleware('auth:sanctum')->get('/responses/{response_id}/user', [Respons
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/responses/{thread_id}', [ResponseController::class, 'handleResponses']);
     Route::post('/responses', [ResponseController::class, 'handleResponses']);
-    
     
     Route::get('/profile', [AuthController::class, 'profile']);
 

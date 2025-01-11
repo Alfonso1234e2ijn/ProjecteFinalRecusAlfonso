@@ -116,31 +116,25 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function rateUser(Request $request)
+    public function rate(Request $request)
     {
-        $validated = $request->validate([
+        $validatedData = $request->validate([
             'user_id' => 'required|exists:users,id',
             'rating' => 'required|integer|min:1|max:5',
         ]);
 
-        $userId = $validated['user_id'];
-        $raterId = auth()->id();
-        $rating = $validated['rating'];
-
-        $existingRating = Urating::where('user_id', $userId)->where('rater_id', $raterId)->first();
-
-        if ($existingRating) {
-            $existingRating->rating = $rating;
-            $existingRating->save();
-        } else {
-            Urating::create([
-                'user_id' => $userId,
-                'rater_id' => $raterId,
-                'rating' => $rating,
-            ]);
+        $raterId = Auth::id();
+        if (!$raterId) {
+            return response()->json(['message' => 'You must be logged in to rate.'], 401);
         }
 
-        return response()->json(['rating' => $rating], 200);
+        $rating = URating::create([
+            'user_id' => $validatedData['user_id'],
+            'rater_id' => $raterId,
+            'rating' => $validatedData['rating'],
+        ]);
 
+        return response()->json(['rating' => $rating], 201);
     }
+
 }
