@@ -65,10 +65,13 @@ class UserController extends Controller
         if (!$user) {
             return response()->json(['message' => 'User not authenticated'], 401);
         }
-        $user->delete();
-        return response()->json(['message' => 'Your account has been deleted.'], 200);
-    }
 
+        $deletedUser = User::where('id', $user->id)->first();
+        $deletedUser->delete();
+
+        return $this->responseMessage(true, 'User has been deleted', null, 200);
+    }
+    
     /**
      * Cierra la sesión del usuario autenticado.
      *

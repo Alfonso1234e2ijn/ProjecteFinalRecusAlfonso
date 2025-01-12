@@ -171,36 +171,32 @@ export default function Dashboard() {
     };
 
     const handleDeleteAccount = async () => {
-        if (window.confirm("Are you sure you want to delete your account?")) {
-            try {
-                const response = await fetch(
-                    "http://localhost/api/user/delete",
-                    {
-                        method: "DELETE",
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem(
-                                "token"
-                            )}`,
-                            "Content-Type": "application/json",
-                        },
-                    }
-                );
-
-                if (response.ok) {
-                    localStorage.removeItem("token");
-                    navigate("/welcome");
-                    alert("Your account has been deleted.");
-                } else {
-                    console.error("Error deleting account");
-                }
-            } catch (error) {
-                console.error("Error:", error);
-                alert(
-                    "An unexpected error occurred while deleting your account."
-                );
+        try {
+            // Llamada a la API
+            const response = await fetch("http://localhost/api/user/delete", {
+                method: "DELETE",
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Token de autenticación
+                    "Content-Type": "application/json",
+                },
+            });
+    
+            // Verificación de la respuesta
+            if (!response.ok) {
+                const data = await response.json(); // Obtener el mensaje de error de la respuesta
+                throw new Error(data.message || "Error during account deletion.");
             }
+    
+            // Eliminar el token del almacenamiento local y redirigir
+            localStorage.removeItem("token");
+            window.location.href = "/welcome"; // Redirigir al usuario después de eliminar la cuenta
+    
+        } catch (error) {
+            console.error("Error during account deletion request:", error);
+            alert(`An error occurred: ${error.message}`); // Mostrar mensaje de error
         }
     };
+    
 
     return (
         <div className="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-gray-900 dark:text-gray-100">
@@ -306,7 +302,7 @@ export default function Dashboard() {
                                     </li>
                                     <li
                                         onClick={handleDeleteAccount}
-                                        className="px-4 py-2 flex items-center cursor-pointer hover:bg-red-600 dark:hover:bg-red-600 text-red-600 dark:text-red-400"
+                                        className="px-4 py-2 flex items-center cursor-pointer hover:bg-red-600 dark:hover:bg-red-600 text-black dark:text-red-400"
                                     >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"

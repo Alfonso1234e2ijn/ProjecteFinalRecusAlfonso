@@ -43,10 +43,11 @@ Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/my-threads', [ThreadController::class, 'getMyThreads']);
 });
 
+Route::middleware('auth:sanctum')->delete('/user/delete', [UserController::class, 'deleteUserAccount']);
+
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::get('/user', [UserController::class, 'getUserDetails']);
     Route::put('/user/update', [UserController::class, 'updateUserDetails']);
-    Route::delete('/user/delete', [UserController::class, 'deleteUserAccount']);
     Route::post('/logout', [UserController::class, 'logout']);
     Route::get('/notifications', [UserController::class, 'getNotifications']);
 });
