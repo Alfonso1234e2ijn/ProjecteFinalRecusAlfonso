@@ -10,7 +10,7 @@ use App\Models\Urating;
 class UserController extends Controller
 {
     /**
-     * Obtiene los detalles del usuario autenticado.
+     * Get the details of the authenticated user.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -30,7 +30,7 @@ class UserController extends Controller
     }
 
     /**
-     * Actualiza los detalles del usuario autenticado.
+     * Update the details of the authenticated user.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -55,7 +55,7 @@ class UserController extends Controller
     }
 
     /**
-     * Elimina la cuenta del usuario autenticado.
+     * Delete account of the authenticated user.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -73,7 +73,7 @@ class UserController extends Controller
     }
     
     /**
-     * Cierra la sesión del usuario autenticado.
+     * Logout the account of the authenticated user.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -90,7 +90,7 @@ class UserController extends Controller
     }
 
     /**
-     * Obtiene las notificaciones del usuario autenticado.
+     * Get the notifications of the authenticated user.
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -119,6 +119,11 @@ class UserController extends Controller
         ], 200);
     }
 
+    /**
+     * Rate a user.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function rate(Request $request)
     {
         $validatedData = $request->validate([
@@ -140,6 +145,11 @@ class UserController extends Controller
         return response()->json(['rating' => $rating], 201);
     }
 
+    /**
+     * Update the role of any user (only can do this is the admin).
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateRole(Request $request)
     {
         $user = Auth::user();

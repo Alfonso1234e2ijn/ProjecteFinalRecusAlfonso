@@ -10,10 +10,56 @@ class ThreadController extends Controller
 {
 
     /**
-     * Crea un nuevo hilo.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @swagger
+     * /threads:
+     *   post:
+     *     summary: Create a new thread
+     *     description: Creates a new thread for the authenticated user.
+     *     requestBody:
+     *       required: true
+     *       content:
+     *         application/json:
+     *           schema:
+     *             type: object
+     *             properties:
+     *               title:
+     *                 type: string
+     *                 description: Title of the thread
+     *               content:
+     *                 type: string
+     *                 description: Content of the thread
+     *             required:
+     *               - title
+     *               - content
+     *     responses:
+     *       201:
+     *         description: Thread created successfully.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     *                 thread:
+     *                   type: object
+     *                   properties:
+     *                     id:
+     *                       type: integer
+     *                     title:
+     *                       type: string
+     *                     content:
+     *                       type: string
+     *                     user_id:
+     *                       type: integer
+     *                     created_at:
+     *                       type: string
+     *                     updated_at:
+     *                       type: string
+     *       401:
+     *         description: User not authenticated.
+     *       400:
+     *         description: Bad request (missing title or content).
      */
     public function createThread(Request $request)
     {
@@ -36,11 +82,40 @@ class ThreadController extends Controller
         return response()->json(['message' => 'Thread created successfully!', 'thread' => $thread], 201);
     }
 
+
     /**
-     * Obtener los threads del usuario autenticado.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @return \Illuminate\Http\JsonResponse
+     * @swagger
+     * /threads/my:
+     *   get:
+     *     summary: Get threads of the authenticated user
+     *     description: Retrieves all threads created by the authenticated user.
+     *     responses:
+     *       200:
+     *         description: Threads found successfully.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 threads:
+     *                   type: array
+     *                   items:
+     *                     type: object
+     *                     properties:
+     *                       id:
+     *                         type: integer
+     *                       title:
+     *                         type: string
+     *                       content:
+     *                         type: string
+     *                       user_id:
+     *                         type: integer
+     *                       created_at:
+     *                         type: string
+     *                       updated_at:
+     *                         type: string
+     *       401:
+     *         description: User not authenticated.
      */
     public function getMyThreads(Request $request)
     {
@@ -54,11 +129,25 @@ class ThreadController extends Controller
     }
 
     /**
-     * Eliminar un hilo específico.
-     *
-     * @param \Illuminate\Http\Request $request
-     * @param int $id
-     * @return \Illuminate\Http\JsonResponse
+     * @swagger
+     * /threads/{id}:
+     *   delete:
+     *     summary: Delete a specific thread
+     *     description: Deletes a thread created by the authenticated user.
+     *     parameters:
+     *       - name: id
+     *         in: path
+     *         required: true
+     *         description: ID of the thread to delete.
+     *         schema:
+     *           type: integer
+     *     responses:
+     *       200:
+     *         description: Thread deleted successfully.
+     *       404:
+     *         description: Thread not found or not authorized to delete this thread.
+     *       401:
+     *         description: User not authenticated.
      */
     public function deleteThread(Request $request, $id)
     {
@@ -75,6 +164,38 @@ class ThreadController extends Controller
         return response()->json(['message' => 'Thread deleted successfully.'], 200);
     }
 
+    /**
+     * @swagger
+     * /threads:
+     *   get:
+     *     summary: Get all threads
+     *     description: Retrieves all threads in the system.
+     *     responses:
+     *       200:
+     *         description: Threads found successfully.
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 threads:
+     *                   type: array
+     *                   items:
+     *                     type: object
+     *                     properties:
+     *                       id:
+     *                         type: integer
+     *                       title:
+     *                         type: string
+     *                       content:
+     *                         type: string
+     *                       user_id:
+     *                         type: integer
+     *                       created_at:
+     *                         type: string
+     *                       updated_at:
+     *                         type: string
+     */
     public function getAllThreads(Request $request)
     {
         $threads = Thread::all();
