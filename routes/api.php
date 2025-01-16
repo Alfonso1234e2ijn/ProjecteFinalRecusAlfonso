@@ -8,6 +8,10 @@ use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\ResponseController;
 use App\Http\Controllers\VoteController;
 
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/uratings/rate', [UserController::class, 'rate']);
+});
+
 Route::middleware('auth:sanctum')->put('/users/updateRole', [UserController::class, 'updateRole']);
 
 Route::middleware('auth:sanctum')->group(function () {

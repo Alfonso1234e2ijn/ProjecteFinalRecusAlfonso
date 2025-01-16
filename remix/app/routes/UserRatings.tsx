@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
-import { Link } from "@remix-run/react";
+import { json, redirect } from "@remix-run/node";
+import { useLoaderData, Form, Link } from "@remix-run/react";
+import { useState, useEffect } from "react";
 
 interface User {
   id: number;
@@ -9,85 +10,75 @@ interface User {
   rating: number | null;
 }
 
+// Loader function to fetch users
+export const loader = async () => {
+  try {
+    const response = await fetch("http://localhost/api/users/getAll");
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to fetch users");
+    }
+
+    const data = await response.json();
+    return json({ users: data.users });
+  } catch (error: any) {
+    return json({ error: error.message }, { status: 500 });
+  }
+};
+
+// Action function to handle ratings
+export const action = async ({ request }: { request: Request }) => {
+  const formData = await request.formData();
+  const userId = formData.get("userId");
+  const rating = formData.get("rating");
+  const token = formData.get("token");
+
+  if (!userId || !rating || !token) {
+    return json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  try {
+    const response = await fetch("http://localhost/api/uratings/rate", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ user_id: Number(userId), rating: Number(rating) }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || "Failed to submit rating");
+    }
+
+    return redirect("/RateConfirmation");
+  } catch (error: any) {
+    return json({ error: error.message }, { status: 500 });
+  }
+};
+
 export default function UserRatings() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { users, error } = useLoaderData<typeof loader>();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [hoveredRatings, setHoveredRatings] = useState<{ [key: number]: number | null }>({});
+  const [token, setToken] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const response = await fetch("http://localhost/api/users/getAll");
-
-        if (response.ok) {
-          const data = await response.json();
-          setUsers(data.users);
-          setFilteredUsers(data.users);
-        } else {
-          const errorData = await response.json();
-          setError(errorData.message || "Failed to fetch users");
-        }
-      } catch (error) {
-        setError("Error fetching users");
-        console.error(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
+    // Access localStorage only in the browser
+    const storedToken = localStorage.getItem("token");
+    setToken(storedToken);
   }, []);
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const query = event.target.value.toLowerCase();
-    setSearchQuery(query);
-
-    const filtered = users.filter((user) =>
-      user.name.toLowerCase().includes(query) || user.username.toLowerCase().includes(query)
-    );
-
-    setFilteredUsers(filtered);
+    setSearchQuery(event.target.value.toLowerCase());
   };
 
-  const handleRating = async (userId: number, rating: number) => {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      setError("No token found. Please log in.");
-      return;
-    }
-
-    try {
-      const response = await fetch("http://localhost/api/uratings/rate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ user_id: userId, rating }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const updatedUsers = users.map((user) =>
-          user.id === userId ? { ...user, rating: data.rating.rating } : user
-        );
-        setUsers(updatedUsers);
-        setFilteredUsers(updatedUsers);
-      } else {
-        const errorData = await response.json();
-        setError(errorData.message || "Failed to submit rating");
-      }
-    } catch (error) {
-      setError("Error submitting rating");
-      console.error(error);
-    }
-  };
+  const filteredUsers = users.filter((user: User) =>
+    user.name.toLowerCase().includes(searchQuery) ||
+    user.username.toLowerCase().includes(searchQuery)
+  );
 
   const handleHover = (userId: number, star: number) => {
     setHoveredRatings((prev) => ({ ...prev, [userId]: star }));
@@ -121,13 +112,11 @@ export default function UserRatings() {
           className="w-full p-4 mb-6 border border-gray-300 rounded-xl focus:ring-4 focus:ring-purple-500 focus:outline-none"
         />
 
-        {loading ? (
-          <p className="text-center text-gray-600 animate-pulse">Loading...</p>
-        ) : error ? (
+        {error ? (
           <p className="text-center text-red-600 font-semibold">{error}</p>
         ) : filteredUsers.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {filteredUsers.map((user) => (
+            {filteredUsers.map((user: User) => (
               <div
                 key={user.id}
                 className="p-6 bg-gradient-to-br from-gray-100 to-gray-200 rounded-lg shadow-md transform hover:scale-105 transition-transform"
@@ -136,19 +125,23 @@ export default function UserRatings() {
                 <p className="text-sm text-gray-600">@{user.username}</p>
                 <div className="mt-4 flex items-center space-x-1">
                   {[1, 2, 3, 4, 5].map((star) => (
-                    <span
-                      key={star}
-                      className={`cursor-pointer text-2xl ${
-                        (hoveredRatings[user.id] || user.rating || 0) >= star
-                          ? "text-yellow-400"
-                          : "text-gray-300"
-                      }`}
-                      onClick={() => handleRating(user.id, star)}
-                      onMouseEnter={() => handleHover(user.id, star)}
-                      onMouseLeave={() => handleMouseLeave(user.id)}
-                    >
-                      ★
-                    </span>
+                    <Form method="post" key={star}>
+                      <input type="hidden" name="userId" value={user.id} />
+                      <input type="hidden" name="rating" value={star} />
+                      <input type="hidden" name="token" value={token || ""} />
+                      <button
+                        type="submit"
+                        className={`cursor-pointer text-2xl ${
+                          (hoveredRatings[user.id] || user.rating || 0) >= star
+                            ? "text-yellow-400"
+                            : "text-gray-300"
+                        }`}
+                        onMouseEnter={() => handleHover(user.id, star)}
+                        onMouseLeave={() => handleMouseLeave(user.id)}
+                      >
+                        ★
+                      </button>
+                    </Form>
                   ))}
                 </div>
                 <p className="text-sm text-gray-500 mt-2">
