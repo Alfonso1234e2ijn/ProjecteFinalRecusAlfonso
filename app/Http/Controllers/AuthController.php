@@ -13,7 +13,7 @@ use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
-    
+
     public function register(Request $request)
     {
         if ($this->checkUserAuth($request->email)) {
@@ -43,17 +43,43 @@ class AuthController extends Controller
 
         $token = $user->createToken($user->email . '_token')->plainTextToken;
 
-        return $this->responseMessage(true, 'Registration succesfully', 
-            ['user' => $user, 'token' => $token], 200);
+        return $this->responseMessage(
+            true,
+            'Registration succesfully',
+            ['user' => $user, 'token' => $token],
+            200
+        );
     }
 
+    // public function login(Request $request)
+    // {
+    //     $user = User::where('email', $request->email)->first();
+    //     $user->tokens()->delete();
+
+    //     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+    //         $user = Auth::user();
+    //         $token = $user->createToken('Api-Token')->plainTextToken;
+    //         return $this->responseMessage(true, 'Login SUCCESSFUL', ['token' => $token], 200);
+    //     } else {
+    //         return $this->responseMessage(false, 'Login UNSUCCESSFUL', null, 401);
+    //     }
+    // }
     public function login(Request $request)
     {
-        $user = User::where('email', $request->email)->first();
-        $user->tokens()->delete();
+        // Validate input
+        $request->validate([
+            'identifier' => 'required|string',
+            'password' => 'required|string',
+        ]);
 
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = Auth::user();
+        // Search for email or username
+        $user = User::where('email', $request->identifier)
+            ->orWhere('username', $request->identifier)
+            ->first();
+
+        // Verify user and credentials
+        if ($user && Auth::attempt(['email' => $user->email, 'password' => $request->password])) {
+            $user->tokens()->delete(); // Invalidate previous tokens
             $token = $user->createToken('Api-Token')->plainTextToken;
             return $this->responseMessage(true, 'Login SUCCESSFUL', ['token' => $token], 200);
         } else {
@@ -70,7 +96,8 @@ class AuthController extends Controller
         return response()->json(['message' => 'Logged out successfully']);
     }
 
-    public function profile (Request $request){
+    public function profile(Request $request)
+    {
         $user = Auth::user();
         return $this->responseMessage(true, 'Perfil User', ['user' => $user], 200);
     }

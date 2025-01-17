@@ -8,7 +8,7 @@ export default function Login() {
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const formData = new FormData(event.currentTarget);
-        const email = formData.get("email") as string;
+        const identifier = formData.get("identifier") as string;
         const password = formData.get("password") as string;
 
         setLoading(true);
@@ -18,7 +18,7 @@ export default function Login() {
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ identifier, password }), // identifier is used to allow the authentication with email or username, In short it is a generic variable.
             });
 
             if (!response.ok) {
@@ -62,11 +62,13 @@ export default function Login() {
                 <h1 className="text-3xl font-semibold mb-6 text-center text-gray-800">Login</h1>
                 <form method="post" onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email:</label>
+                        <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
+                            Email or Username:
+                        </label>
                         <input
-                            type="email"
-                            name="email"
-                            id="email"
+                            type="text"
+                            name="identifier"
+                            id="identifier"
                             required
                             className="w-full px-4 py-2 border rounded-md text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
