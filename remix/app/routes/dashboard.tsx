@@ -172,28 +172,25 @@ export default function Dashboard() {
 
     const handleDeleteAccount = async () => {
         try {
-            // Llamada a la API
             const response = await fetch("http://localhost/api/user/delete", {
                 method: "DELETE",
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem("token")}`, // Token de autenticación
+                    Authorization: `Bearer ${localStorage.getItem("token")}`,
                     "Content-Type": "application/json",
                 },
             });
     
-            // Verificación de la respuesta
             if (!response.ok) {
-                const data = await response.json(); // Obtener el mensaje de error de la respuesta
+                const data = await response.json();
                 throw new Error(data.message || "Error during account deletion.");
             }
     
-            // Eliminar el token del almacenamiento local y redirigir
             localStorage.removeItem("token");
-            window.location.href = "/welcome"; // Redirigir al usuario después de eliminar la cuenta
+            window.location.href = "/welcome";
     
         } catch (error) {
             console.error("Error during account deletion request:", error);
-            alert(`An error occurred: ${error.message}`); // Mostrar mensaje de error
+            alert(`An error occurred: ${error.message}`);
         }
     };
     
