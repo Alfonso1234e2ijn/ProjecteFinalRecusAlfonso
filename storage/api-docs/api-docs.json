@@ -1,0 +1,632 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Discutex API",
+        "description": "API for managing threads, responses, and votes",
+        "termsOfService": "https://www.example.com/terms",
+        "contact": {
+            "email": "support@example.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        },
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/responses/thread/{thread_id}": {
+            "get": {
+                "tags": [
+                    "Responses"
+                ],
+                "summary": "Get responses for a specific thread",
+                "description": "Retrieves all responses for a thread using its ID.",
+                "operationId": "getResponsesByThread",
+                "parameters": [
+                    {
+                        "name": "thread_id",
+                        "in": "path",
+                        "description": "The thread ID to fetch associated responses.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Responses found successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "responses": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "content": {
+                                                        "type": "string"
+                                                    },
+                                                    "user_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "thread_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Thread not found."
+                    },
+                    "500": {
+                        "description": "Error while fetching responses."
+                    }
+                }
+            }
+        },
+        "/responses/{thread_id}": {
+            "get": {
+                "tags": [
+                    "Responses"
+                ],
+                "summary": "Get responses for a thread (with user data)",
+                "description": "Retrieves all responses for a specific thread, including the user data for each response.",
+                "operationId": "getResponsesWithUser",
+                "parameters": [
+                    {
+                        "name": "thread_id",
+                        "in": "path",
+                        "description": "The thread ID to fetch responses.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Responses found successfully with user data.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "responses": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "content": {
+                                                        "type": "string"
+                                                    },
+                                                    "user": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "name": {
+                                                                "type": "string"
+                                                            },
+                                                            "email": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "thread_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Error while fetching responses."
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Responses"
+                ],
+                "summary": "Create a new response for a thread",
+                "description": "Create a new response for a specific thread.",
+                "operationId": "createResponse",
+                "parameters": [
+                    {
+                        "name": "thread_id",
+                        "in": "path",
+                        "description": "The thread ID to create a response in.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "content"
+                                ],
+                                "properties": {
+                                    "content": {
+                                        "description": "Content of the response",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Response created successfully."
+                    },
+                    "400": {
+                        "description": "Invalid request data."
+                    },
+                    "500": {
+                        "description": "Error while creating response."
+                    }
+                }
+            }
+        },
+        "/responses/user/{response_id}": {
+            "get": {
+                "tags": [
+                    "Responses"
+                ],
+                "summary": "Get the user who made a specific response",
+                "description": "Retrieves the user related to a response using the response ID.",
+                "operationId": "getUserByResponse",
+                "parameters": [
+                    {
+                        "name": "response_id",
+                        "in": "path",
+                        "description": "The response ID to get the associated user data.",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User found successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "user": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "name": {
+                                                    "type": "string"
+                                                },
+                                                "email": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Response or user not found."
+                    },
+                    "500": {
+                        "description": "Error while fetching user data."
+                    }
+                }
+            }
+        },
+        "/threads": {
+            "get": {
+                "tags": [
+                    "Threads"
+                ],
+                "summary": "Get all threads",
+                "description": "Retrieves all threads in the system.",
+                "operationId": "getAllThreads",
+                "responses": {
+                    "200": {
+                        "description": "Threads found successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "threads": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "content": {
+                                                        "type": "string"
+                                                    },
+                                                    "user_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Threads"
+                ],
+                "summary": "Create a new thread",
+                "description": "Creates a new thread for the authenticated user.",
+                "operationId": "createThread",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "title",
+                                    "content"
+                                ],
+                                "properties": {
+                                    "title": {
+                                        "description": "Title of the thread",
+                                        "type": "string"
+                                    },
+                                    "content": {
+                                        "description": "Content of the thread",
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Thread created successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "thread": {
+                                            "properties": {
+                                                "id": {
+                                                    "type": "integer"
+                                                },
+                                                "title": {
+                                                    "type": "string"
+                                                },
+                                                "content": {
+                                                    "type": "string"
+                                                },
+                                                "user_id": {
+                                                    "type": "integer"
+                                                },
+                                                "created_at": {
+                                                    "type": "string"
+                                                },
+                                                "updated_at": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated."
+                    },
+                    "400": {
+                        "description": "Bad request (missing title or content)."
+                    }
+                }
+            }
+        },
+        "/threads/my": {
+            "get": {
+                "tags": [
+                    "Threads"
+                ],
+                "summary": "Get threads of the authenticated user",
+                "description": "Retrieves all threads created by the authenticated user.",
+                "operationId": "getMyThreads",
+                "responses": {
+                    "200": {
+                        "description": "Threads found successfully.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "threads": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "title": {
+                                                        "type": "string"
+                                                    },
+                                                    "content": {
+                                                        "type": "string"
+                                                    },
+                                                    "user_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User not authenticated."
+                    }
+                }
+            }
+        },
+        "/threads/{id}": {
+            "delete": {
+                "tags": [
+                    "Threads"
+                ],
+                "summary": "Delete a specific thread",
+                "description": "Deletes a thread created by the authenticated user.",
+                "operationId": "deleteThread",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID of the thread to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thread deleted successfully."
+                    },
+                    "404": {
+                        "description": "Thread not found or not authorized to delete this thread."
+                    },
+                    "401": {
+                        "description": "User not authenticated."
+                    }
+                }
+            }
+        },
+        "/votes/{responseId}": {
+            "post": {
+                "tags": [
+                    "Votes"
+                ],
+                "summary": "Register a vote on a response",
+                "description": "Allows an authenticated user to vote on a response. Users cannot vote on their own responses.",
+                "operationId": "vote",
+                "parameters": [
+                    {
+                        "name": "responseId",
+                        "in": "path",
+                        "description": "ID of the response to vote on",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "action"
+                                ],
+                                "properties": {
+                                    "action": {
+                                        "description": "The vote action (true for upvote, false for downvote)",
+                                        "type": "boolean"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Vote registered successfully."
+                    },
+                    "400": {
+                        "description": "Invalid response ID or invalid request data."
+                    },
+                    "403": {
+                        "description": "User cannot vote on their own response."
+                    },
+                    "404": {
+                        "description": "Response not found."
+                    }
+                }
+            }
+        },
+        "/votes/unread": {
+            "get": {
+                "tags": [
+                    "Votes"
+                ],
+                "summary": "Get all unread votes for the authenticated user",
+                "description": "Retrieves all unread votes for the authenticated user, including the associated response details.",
+                "operationId": "getUnreadVotes",
+                "responses": {
+                    "200": {
+                        "description": "Successfully retrieved unread votes.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "unreadVotes": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "user_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "response_id": {
+                                                        "type": "integer"
+                                                    },
+                                                    "type": {
+                                                        "description": "The vote action (true for upvote, false for downvote)",
+                                                        "type": "boolean"
+                                                    },
+                                                    "read": {
+                                                        "description": "Whether the vote has been read by the user.",
+                                                        "type": "boolean"
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "updated_at": {
+                                                        "type": "string"
+                                                    },
+                                                    "response": {
+                                                        "properties": {
+                                                            "id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "content": {
+                                                                "type": "string"
+                                                            },
+                                                            "user_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "thread_id": {
+                                                                "type": "integer"
+                                                            },
+                                                            "created_at": {
+                                                                "type": "string"
+                                                            },
+                                                            "updated_at": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized (User not authenticated)."
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Responses",
+            "description": "Responses"
+        },
+        {
+            "name": "Threads",
+            "description": "Threads"
+        },
+        {
+            "name": "Votes",
+            "description": "Votes"
+        }
+    ]
+}

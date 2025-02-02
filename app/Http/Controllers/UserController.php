@@ -23,6 +23,7 @@ class UserController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 'username' => $user->username,
+                'role' => $user->role,
             ], 200);
         }
 
@@ -62,6 +63,7 @@ class UserController extends Controller
     public function deleteUserAccount()
     {
         $user = Auth::user();
+        
         if (!$user) {
             return response()->json(['message' => 'User not authenticated'], 401);
         }

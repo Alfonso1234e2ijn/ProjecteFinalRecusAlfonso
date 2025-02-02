@@ -12,9 +12,9 @@ export default function Dashboard() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [userName, setUserName] = useState("");
     const [userEmail, setUserEmail] = useState("");
-    const [userRole, setUserRole] = useState(null);
     const [userUsername, setUserUsername] = useState("");
     const [editing, setEditing] = useState(false);
+    const [userRole, setUserRole] = useState(null);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
     const [isNotificationCircleVisible, setIsNotificationCircleVisible] =
         useState(true);
@@ -41,7 +41,7 @@ export default function Dashboard() {
                     const data = await response.json();
                     setUserName(data.name);
                     setUserEmail(data.email);
-                    setUserRole(data.role); 
+                    setUserRole(data.role);
                     setUserUsername(data.username);
                     setOriginalUser({
                         name: data.name,
@@ -162,6 +162,34 @@ export default function Dashboard() {
         }
     };
 
+    useEffect(() => {
+        const fetchUserDetails = async () => {
+            try {
+                const response = await fetch("http://localhost/api/user", {
+                    method: "GET",
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                            "token"
+                        )}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log("User role fetched:", data.role);
+                    setUserRole(data.role);
+                } else {
+                    console.error("Error fetching user details");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        };
+
+        fetchUserDetails();
+    }, []);
+
     const handleCancel = () => {
         setUserName(originalUser.name);
         setUserEmail(originalUser.email);
@@ -179,21 +207,21 @@ export default function Dashboard() {
                     "Content-Type": "application/json",
                 },
             });
-    
+
             if (!response.ok) {
                 const data = await response.json();
-                throw new Error(data.message || "Error during account deletion.");
+                throw new Error(
+                    data.message || "Error during account deletion."
+                );
             }
-    
+
             localStorage.removeItem("token");
             window.location.href = "/welcome";
-    
         } catch (error) {
             console.error("Error during account deletion request:", error);
             alert(`An error occurred: ${error.message}`);
         }
     };
-    
 
     return (
         <div className="min-h-screen bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 text-gray-900 dark:text-gray-100">
@@ -250,13 +278,13 @@ export default function Dashboard() {
                             >
                                 <ul className="divide-y divide-gray-200 dark:divide-gray-600">
                                     {/* Admin-only option */}
-                                    {userRole === 1 && (
-                                        <li className="px-4 py-2 flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600">
+                                    {userRole !== undefined &&
+                                        userRole === 1 && (
                                             <Link to="/admin-panel">
-                                                Admin Panel
+                                                ⚙️ Admin Panel
                                             </Link>
-                                        </li>
-                                    )}
+                                        )}
+
                                     <li
                                         onClick={handleLogout}
                                         className="px-4 py-2 flex items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-600"

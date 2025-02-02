@@ -9,47 +9,53 @@ use Illuminate\Http\Request;
 class ResponseController extends Controller
 {
     /**
-     * @swagger
-     * /responses/thread/{thread_id}:
-     *   get:
-     *     summary: Get responses for a specific thread
-     *     description: Retrieves all responses for a thread using its ID.
-     *     parameters:
-     *       - name: thread_id
-     *         in: path
-     *         required: true
-     *         description: The thread ID to fetch associated responses.
-     *         schema:
-     *           type: integer
-     *     responses:
-     *       200:
-     *         description: Responses found successfully.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 responses:
-     *                   type: array
-     *                   items:
-     *                     type: object
-     *                     properties:
-     *                       id:
-     *                         type: integer
-     *                       content:
-     *                         type: string
-     *                       user_id:
-     *                         type: integer
-     *                       thread_id:
-     *                         type: integer
-     *                       created_at:
-     *                         type: string
-     *                       updated_at:
-     *                         type: string
-     *       404:
-     *         description: Thread not found.
-     *       500:
-     *         description: Error while fetching responses.
+     * @OA\Get(
+     *     path="/responses/thread/{thread_id}",
+     *     summary="Get responses for a specific thread",
+     *     description="Retrieves all responses for a thread using its ID.",
+     *     operationId="getResponsesByThread",
+     *     tags={"Responses"},
+     *     @OA\Parameter(
+     *         name="thread_id",
+     *         in="path",
+     *         required=true,
+     *         description="The thread ID to fetch associated responses.",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Responses found successfully.",
+     *         content={
+     *             @OA\MediaType(
+     *                 mediaType="application/json",
+     *                 @OA\Schema(
+     *                     type="object",
+     *                     @OA\Property(
+     *                         property="responses",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="id", type="integer"),
+     *                             @OA\Property(property="content", type="string"),
+     *                             @OA\Property(property="user_id", type="integer"),
+     *                             @OA\Property(property="thread_id", type="integer"),
+     *                             @OA\Property(property="created_at", type="string"),
+     *                             @OA\Property(property="updated_at", type="string")
+     *                         )
+     *                     )
+     *                 )
+     *             )
+     *         }
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Thread not found."
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error while fetching responses."
+     *     )
+     * )
      */
     public function getResponsesByThread($thread_id)
     {
@@ -63,54 +69,95 @@ class ResponseController extends Controller
     }
 
     /**
-     * @swagger
-     * /responses/{thread_id}:
-     *   get:
-     *     summary: Get responses for a thread (with user data)
-     *     description: Retrieves all responses for a specific thread, including the user data for each response.
-     *     parameters:
-     *       - name: thread_id
-     *         in: path
-     *         required: true
-     *         description: The thread ID to fetch responses.
-     *         schema:
-     *           type: integer
-     *     responses:
-     *       200:
-     *         description: Responses found successfully with user data.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 success:
-     *                   type: boolean
-     *                 responses:
-     *                   type: array
-     *                   items:
-     *                     type: object
-     *                     properties:
-     *                       id:
-     *                         type: integer
-     *                       content:
-     *                         type: string
-     *                       user:
-     *                         type: object
-     *                         properties:
-     *                           id:
-     *                             type: integer
-     *                           name:
-     *                             type: string
-     *                           email:
-     *                             type: string
-     *                       thread_id:
-     *                         type: integer
-     *                       created_at:
-     *                         type: string
-     *                       updated_at:
-     *                         type: string
-     *       500:
-     *         description: Error while fetching responses.
+     * @OA\Get(
+     *     path="/responses/{thread_id}",
+     *     summary="Get responses for a thread (with user data)",
+     *     description="Retrieves all responses for a specific thread, including the user data for each response.",
+     *     operationId="getResponsesWithUser",
+     *     tags={"Responses"},
+     *     @OA\Parameter(
+     *         name="thread_id",
+     *         in="path",
+     *         required=true,
+     *         description="The thread ID to fetch responses.",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Responses found successfully with user data.",
+     *         content={
+     *             @OA\MediaType(
+     *                 mediaType="application/json",
+     *                 @OA\Schema(
+     *                     type="object",
+     *                     @OA\Property(property="success", type="boolean"),
+     *                     @OA\Property(
+     *                         property="responses",
+     *                         type="array",
+     *                         @OA\Items(
+     *                             type="object",
+     *                             @OA\Property(property="id", type="integer"),
+     *                             @OA\Property(property="content", type="string"),
+     *                             @OA\Property(
+     *                                 property="user",
+     *                                 type="object",
+     *                                 @OA\Property(property="id", type="integer"),
+     *                                 @OA\Property(property="name", type="string"),
+     *                                 @OA\Property(property="email", type="string")
+     *                             ),
+     *                             @OA\Property(property="thread_id", type="integer"),
+     *                             @OA\Property(property="created_at", type="string"),
+     *                             @OA\Property(property="updated_at", type="string")
+     *                         )
+     *                     )
+     *                 )
+     *             )
+     *         }
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error while fetching responses."
+     *     )
+     * ),
+     * @OA\Post(
+     *     path="/responses/{thread_id}",
+     *     summary="Create a new response for a thread",
+     *     description="Create a new response for a specific thread.",
+     *     operationId="createResponse",
+     *     tags={"Responses"},
+     *     @OA\Parameter(
+     *         name="thread_id",
+     *         in="path",
+     *         required=true,
+     *         description="The thread ID to create a response in.",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         required=true,
+     *         content={
+     *             @OA\MediaType(
+     *                 mediaType="application/json",
+     *                 @OA\Schema(
+     *                     type="object",
+     *                     @OA\Property(property="content", type="string", description="Content of the response"),
+     *                     required={"content"}
+     *                 )
+     *             )
+     *         }
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Response created successfully."
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Invalid request data."
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error while creating response."
+     *     )
+     * )
      */
     public function handleResponses(Request $request, $thread_id = null)
     {
@@ -166,41 +213,48 @@ class ResponseController extends Controller
     }
 
     /**
-     * @swagger
-     * /responses/user/{response_id}:
-     *   get:
-     *     summary: Get the user who made a specific response
-     *     description: Retrieves the user related to a response using the response ID.
-     *     parameters:
-     *       - name: response_id
-     *         in: path
-     *         required: true
-     *         description: The response ID to get the associated user data.
-     *         schema:
-     *           type: integer
-     *     responses:
-     *       200:
-     *         description: User found successfully.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 success:
-     *                   type: boolean
-     *                 user:
-     *                   type: object
-     *                   properties:
-     *                     id:
-     *                       type: integer
-     *                     name:
-     *                       type: string
-     *                     email:
-     *                       type: string
-     *       404:
-     *         description: Response or user not found.
-     *       500:
-     *         description: Error while fetching user data.
+     * @OA\Get(
+     *     path="/responses/user/{response_id}",
+     *     summary="Get the user who made a specific response",
+     *     description="Retrieves the user related to a response using the response ID.",
+     *     operationId="getUserByResponse",
+     *     tags={"Responses"},
+     *     @OA\Parameter(
+     *         name="response_id",
+     *         in="path",
+     *         required=true,
+     *         description="The response ID to get the associated user data.",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="User found successfully.",
+     *         content={
+     *             @OA\MediaType(
+     *                 mediaType="application/json",
+     *                 @OA\Schema(
+     *                     type="object",
+     *                     @OA\Property(property="success", type="boolean"),
+     *                     @OA\Property(
+     *                         property="user",
+     *                         type="object",
+     *                         @OA\Property(property="id", type="integer"),
+     *                         @OA\Property(property="name", type="string"),
+     *                         @OA\Property(property="email", type="string")
+     *                     )
+     *                 )
+     *             )
+     *         }
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Response or user not found."
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Error while fetching user data."
+     *     )
+     * )
      */
     public function getUserByResponse($response_id)
     {

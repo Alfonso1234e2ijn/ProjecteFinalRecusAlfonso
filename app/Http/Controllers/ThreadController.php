@@ -8,58 +8,51 @@ use Illuminate\Support\Facades\Auth;
 
 class ThreadController extends Controller
 {
-
     /**
-     * @swagger
-     * /threads:
-     *   post:
-     *     summary: Create a new thread
-     *     description: Creates a new thread for the authenticated user.
-     *     requestBody:
-     *       required: true
-     *       content:
-     *         application/json:
-     *           schema:
-     *             type: object
-     *             properties:
-     *               title:
-     *                 type: string
-     *                 description: Title of the thread
-     *               content:
-     *                 type: string
-     *                 description: Content of the thread
-     *             required:
-     *               - title
-     *               - content
-     *     responses:
-     *       201:
-     *         description: Thread created successfully.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 message:
-     *                   type: string
-     *                 thread:
-     *                   type: object
-     *                   properties:
-     *                     id:
-     *                       type: integer
-     *                     title:
-     *                       type: string
-     *                     content:
-     *                       type: string
-     *                     user_id:
-     *                       type: integer
-     *                     created_at:
-     *                       type: string
-     *                     updated_at:
-     *                       type: string
-     *       401:
-     *         description: User not authenticated.
-     *       400:
-     *         description: Bad request (missing title or content).
+     * @OA\Post(
+     *     path="/threads",
+     *     summary="Create a new thread",
+     *     description="Creates a new thread for the authenticated user.",
+     *     operationId="createThread",
+     *     tags={"Threads"},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="application/json",
+     *             @OA\Schema(
+     *                 type="object",
+     *                 @OA\Property(property="title", type="string", description="Title of the thread"),
+     *                 @OA\Property(property="content", type="string", description="Content of the thread"),
+     *                 required={"title", "content"}
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Thread created successfully.",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string"),
+     *             @OA\Property(
+     *                 property="thread", 
+     *                 type="object",
+     *                 @OA\Property(property="id", type="integer"),
+     *                 @OA\Property(property="title", type="string"),
+     *                 @OA\Property(property="content", type="string"),
+     *                 @OA\Property(property="user_id", type="integer"),
+     *                 @OA\Property(property="created_at", type="string"),
+     *                 @OA\Property(property="updated_at", type="string")
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="User not authenticated."
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Bad request (missing title or content)."
+     *     )
+     * )
      */
     public function createThread(Request $request)
     {
@@ -82,40 +75,37 @@ class ThreadController extends Controller
         return response()->json(['message' => 'Thread created successfully!', 'thread' => $thread], 201);
     }
 
-
     /**
-     * @swagger
-     * /threads/my:
-     *   get:
-     *     summary: Get threads of the authenticated user
-     *     description: Retrieves all threads created by the authenticated user.
-     *     responses:
-     *       200:
-     *         description: Threads found successfully.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 threads:
-     *                   type: array
-     *                   items:
-     *                     type: object
-     *                     properties:
-     *                       id:
-     *                         type: integer
-     *                       title:
-     *                         type: string
-     *                       content:
-     *                         type: string
-     *                       user_id:
-     *                         type: integer
-     *                       created_at:
-     *                         type: string
-     *                       updated_at:
-     *                         type: string
-     *       401:
-     *         description: User not authenticated.
+     * @OA\Get(
+     *     path="/threads/my",
+     *     summary="Get threads of the authenticated user",
+     *     description="Retrieves all threads created by the authenticated user.",
+     *     operationId="getMyThreads",
+     *     tags={"Threads"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Threads found successfully.",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="threads", 
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="title", type="string"),
+     *                     @OA\Property(property="content", type="string"),
+     *                     @OA\Property(property="user_id", type="integer"),
+     *                     @OA\Property(property="created_at", type="string"),
+     *                     @OA\Property(property="updated_at", type="string")
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="User not authenticated."
+     *     )
+     * )
      */
     public function getMyThreads(Request $request)
     {
@@ -129,25 +119,32 @@ class ThreadController extends Controller
     }
 
     /**
-     * @swagger
-     * /threads/{id}:
-     *   delete:
-     *     summary: Delete a specific thread
-     *     description: Deletes a thread created by the authenticated user.
-     *     parameters:
-     *       - name: id
-     *         in: path
-     *         required: true
-     *         description: ID of the thread to delete.
-     *         schema:
-     *           type: integer
-     *     responses:
-     *       200:
-     *         description: Thread deleted successfully.
-     *       404:
-     *         description: Thread not found or not authorized to delete this thread.
-     *       401:
-     *         description: User not authenticated.
+     * @OA\Delete(
+     *     path="/threads/{id}",
+     *     summary="Delete a specific thread",
+     *     description="Deletes a thread created by the authenticated user.",
+     *     operationId="deleteThread",
+     *     tags={"Threads"},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID of the thread to delete",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Thread deleted successfully."
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Thread not found or not authorized to delete this thread."
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="User not authenticated."
+     *     )
+     * )
      */
     public function deleteThread(Request $request, $id)
     {
@@ -165,36 +162,32 @@ class ThreadController extends Controller
     }
 
     /**
-     * @swagger
-     * /threads:
-     *   get:
-     *     summary: Get all threads
-     *     description: Retrieves all threads in the system.
-     *     responses:
-     *       200:
-     *         description: Threads found successfully.
-     *         content:
-     *           application/json:
-     *             schema:
-     *               type: object
-     *               properties:
-     *                 threads:
-     *                   type: array
-     *                   items:
-     *                     type: object
-     *                     properties:
-     *                       id:
-     *                         type: integer
-     *                       title:
-     *                         type: string
-     *                       content:
-     *                         type: string
-     *                       user_id:
-     *                         type: integer
-     *                       created_at:
-     *                         type: string
-     *                       updated_at:
-     *                         type: string
+     * @OA\Get(
+     *     path="/threads",
+     *     summary="Get all threads",
+     *     description="Retrieves all threads in the system.",
+     *     operationId="getAllThreads",
+     *     tags={"Threads"},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Threads found successfully.",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="threads", 
+     *                 type="array",
+     *                 @OA\Items(
+     *                     type="object",
+     *                     @OA\Property(property="id", type="integer"),
+     *                     @OA\Property(property="title", type="string"),
+     *                     @OA\Property(property="content", type="string"),
+     *                     @OA\Property(property="user_id", type="integer"),
+     *                     @OA\Property(property="created_at", type="string"),
+     *                     @OA\Property(property="updated_at", type="string")
+     *                 )
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function getAllThreads(Request $request)
     {

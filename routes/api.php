@@ -8,60 +8,50 @@ use App\Http\Controllers\ThreadController;
 use App\Http\Controllers\ResponseController;
 use App\Http\Controllers\VoteController;
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/uratings/rate', [UserController::class, 'rate']);
-});
-
-Route::middleware('auth:sanctum')->put('/users/updateRole', [UserController::class, 'updateRole']);
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/uratings/rate', [UserController::class, 'rate']);
-});
-
-
-Route::get('/users/getAll', [UserController::class, 'getAllUsers']);
-
-Route::middleware('auth:sanctum')->get('/unread-votes', [VoteController::class, 'getUnreadVotes']);
-
-Route::middleware('auth:sanctum')->post('/responses/{responseId}/vote', [VoteController::class, 'vote']);
-
-Route::middleware('auth:sanctum')->get('/responses/{response_id}/user', [ResponseController::class, 'getUserByResponse']);
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::get('/responses/{thread_id}', [ResponseController::class, 'handleResponses']);
-    Route::post('/responses', [ResponseController::class, 'handleResponses']);
-    
-    Route::get('/profile', [AuthController::class, 'profile']);
-
-});
-
-Route::get('/responses/{thread_id}', [ResponseController::class, 'getResponsesByThread']);
-
-
-Route::middleware(['auth:sanctum'])->get('/threads', [ThreadController::class, 'getAllThreads']);
-
-Route::middleware(['auth:sanctum'])->delete('/threads/{id}', [ThreadController::class, 'deleteThread']);
-
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::post('/threads', [ThreadController::class, 'createThread']);
-    Route::get('/my-threads', [ThreadController::class, 'getMyThreads']);
-});
-
-Route::middleware('auth:sanctum')->delete('/user/delete', [UserController::class, 'deleteUserAccount']);
-
-Route::middleware(['auth:sanctum'])->group(function () {
-    Route::get('/user', [UserController::class, 'getUserDetails']);
-    Route::put('/user/update', [UserController::class, 'updateUserDetails']);
-    Route::post('/logout', [UserController::class, 'logout']);
-    Route::get('/notifications', [UserController::class, 'getNotifications']);
-});
-
+// Rutes publiques
 Route::post('/register', [AuthController::class, 'register']);
-
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+// Grup protegit per sanctum
+Route::middleware('auth:sanctum')->group(function () {
+
+    // User
+    Route::get('/user', [UserController::class, 'getUserDetails']);
+    Route::put('/user/update', [UserController::class, 'updateUserDetails']);
+    Route::delete('/user/delete', [UserController::class, 'deleteUserAccount']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/notifications', [UserController::class, 'getNotifications']);
+
+    // Ratings
+    Route::post('/uratings/rate', [UserController::class, 'rate']);
+
+    // Roles
+    Route::put('/users/updateRole', [UserController::class, 'updateRole']);
+
+    // Votes
+    Route::get('/unread-votes', [VoteController::class, 'getUnreadVotes']);
+    Route::post('/responses/{responseId}/vote', [VoteController::class, 'vote']);
+
+    // Responses
+    Route::get('/responses/{response_id}/user', [ResponseController::class, 'getUserByResponse']);
+    Route::get('/responses/{thread_id}', [ResponseController::class, 'handleResponses']);
+    Route::post('/responses', [ResponseController::class, 'handleResponses']);
+
+    // Profile
+    Route::get('/profile', [AuthController::class, 'profile']);
+
+    // Threads
+    Route::get('/threads', [ThreadController::class, 'getAllThreads']);
+    Route::delete('/threads/{id}', [ThreadController::class, 'deleteThread']);
+    Route::post('/threads', [ThreadController::class, 'createThread']);
+    Route::get('/my-threads', [ThreadController::class, 'getMyThreads']);
+
+    Route::middleware(['admin'])->get('/admin-panel', function () {
+        return view('admin-panel');
+    });
+
 });
 
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+// Rutes accesibles sense authentication
+Route::get('/users/getAll', [UserController::class, 'getAllUsers']);
+Route::get('/responses/{thread_id}', [ResponseController::class, 'getResponsesByThread']);

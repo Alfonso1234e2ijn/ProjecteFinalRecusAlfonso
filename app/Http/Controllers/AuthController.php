@@ -51,19 +51,6 @@ class AuthController extends Controller
         );
     }
 
-    // public function login(Request $request)
-    // {
-    //     $user = User::where('email', $request->email)->first();
-    //     $user->tokens()->delete();
-
-    //     if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-    //         $user = Auth::user();
-    //         $token = $user->createToken('Api-Token')->plainTextToken;
-    //         return $this->responseMessage(true, 'Login SUCCESSFUL', ['token' => $token], 200);
-    //     } else {
-    //         return $this->responseMessage(false, 'Login UNSUCCESSFUL', null, 401);
-    //     }
-    // }
     public function login(Request $request)
     {
         // Validate input
